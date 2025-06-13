@@ -62,24 +62,28 @@ export const MainNav = () => {
             <span>Home</span>
           </StyledLink>
         </li>
+
         <li>
           <StyledLink to="/bookings">
             <CalendarDaysIcon />
             <span>Bookings</span>
           </StyledLink>
         </li>
+
         <li>
           <StyledLink to="/cabins">
             <HomeModernIcon />
             <span>Cabins</span>
           </StyledLink>
         </li>
+
         <li>
           <StyledLink to="/users">
             <UsersIcon />
             <span>Users</span>
           </StyledLink>
         </li>
+
         <li>
           <StyledLink to="/settings">
             <Cog6ToothIcon />
@@ -87,6 +91,7 @@ export const MainNav = () => {
           </StyledLink>
         </li>
       </NavList>
+
     </nav>
   );
 };
