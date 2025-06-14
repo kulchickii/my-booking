@@ -1,9 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { StylesGlobal } from "./styles/GlobalStyles"
 
+import { store } from "./store/store"
+import { Provider } from 'react-redux'
+
 import { Dashboard } from "./pages/Dashboard"
 import { Booking } from "./pages/Booking"
-import { Cabins } from "./pages/Cabins"
+import { Cabins } from "./pages/Rooms"
 import { Users } from "./pages/Users"
 import { Settings } from "./pages/Settings"
 import { Account } from "./pages/Account"
@@ -13,7 +16,7 @@ import { AppContainer } from "./ui/AppContainer"
 
 function App() {
   return (
-    <>
+    <Provider store={store}>
       <StylesGlobal/>
       <BrowserRouter>
         <Routes>   
@@ -31,7 +34,7 @@ function App() {
           <Route path="*" element={<PageNotFound/>}/>
         </Routes>
       </BrowserRouter>
-      </>
+      </Provider>
   )
 }
 
