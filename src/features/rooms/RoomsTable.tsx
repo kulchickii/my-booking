@@ -1,4 +1,10 @@
 import styled from "styled-components";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getRooms, type Room }  from '../../services/apiRooms'
+import type { RootState } from "../../store/store";
+import { useAppDispatch } from "../../hooks/hooks";
+
 import { RoomRow } from "./RoomRow";
 // import Spinner from "../../ui/Spinner";
 // import RoomRow from "./RoomRow";
@@ -7,7 +13,7 @@ import { RoomRow } from "./RoomRow";
 
 const Table = styled.div`
   border: 1px solid var(--color-grey-200);
-
+  width:100%;
   font-size: 1.4rem;
   background-color: var(--color-grey-0);
   border-radius: 7px;
@@ -16,7 +22,7 @@ const Table = styled.div`
 
 const TableHeader = styled.header`
   display: grid;
-  grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr;
+  grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr ;
   column-gap: 2.4rem;
   align-items: center;
 
@@ -30,20 +36,17 @@ const TableHeader = styled.header`
 `;
 
 export function RoomsTable() {
-  const data = [
-  {
-    id: 1,
-    created_at: '2025-06-13T16:42:15.976732+00:00',
-    name: '001',
-    maxPeople: 4,
-    price: 120,
-    discount: 10,
-    image: null,
-    discriptoin: 'very good room'
-  }
-]
-  return <Table role="table">
-    <TableHeader role="row">
+  const rooms: Room[] = useSelector((state:RootState) => state.rooms)
+  const dispatch = useAppDispatch()
+
+  //как-то вынести первую загрузку + появится кнопка "загрузить еще"
+  useEffect(()=> {
+    dispatch(getRooms())
+  },[dispatch])
+
+
+  return <Table>
+    <TableHeader >
       <div></div>
         <div>Room</div>
         <div>Capacity</div>
@@ -51,7 +54,7 @@ export function RoomsTable() {
         <div>Discount</div>
       <div></div>
     </TableHeader>
-    {data.map((item)=> <RoomRow key = {item.id} room = {item}/>)}
+    {rooms.map((item)=> <RoomRow key = {item.id} room = {item}/>)}
   </Table>
 
 }

@@ -1,4 +1,8 @@
 import styled from "styled-components";
+import type { Room } from "../../services/apiRooms";
+import { deleteRoom } from "../../services/apiRooms";
+import { useAppDispatch } from "../../hooks/hooks";
+// import dayjs from "dayjs";
 // import { formatCurrency } from "../../utils/helpers";
 // import CreateCabinForm from "./CreateCabinForm";
 // import { useDeleteCabin } from "./useDeleteCabin";
@@ -34,24 +38,26 @@ const Cabin = styled.div`
   font-size: 1.6rem;
   font-weight: 600;
   color: var(--color-grey-600);
-  font-family: "Sono";
 `;
 
 const Price = styled.div`
-  font-family: "Sono";
   font-weight: 600;
 `;
 
 const Discount = styled.div`
-  font-family: "Sono";
   font-weight: 500;
   color: var(--color-green-700);
 `;
 
-export function RoomRow({ room }) {
+interface RoomRowProps {
+  room: Room;
+}
+
+export function RoomRow({ room }: RoomRowProps) {
+  const dispatch = useAppDispatch()
   const {
-    // id,
-    // created_at,
+    id,
+    // created_at: createdDate,
     name,
     maxPeople,
     price,
@@ -60,17 +66,20 @@ export function RoomRow({ room }) {
     // discriptoin,
   } = room;
 
+// const formatedDate = dayjs(createdDate).format('DD.MM.YYYY');
+
    return (
     <TableRow>
-      <Img src={image} />
+      <Img src={image}/>
       <Cabin>{name}</Cabin>
-      <div>Fits up to {maxPeople}</div>
-      <Price>{price}</Price>
-      {discount !== null ? (
-        <Discount>{discount}</Discount>
-      ) : (
-        <span>&mdash;</span>
-      )}
+      <div>max people - {maxPeople}</div>
+      <Price>{price} $</Price>
+      {discount !== null ? 
+        <Discount>{discount} $</Discount>
+       : <span>NO</span>
+      }
+      {/* <p>{formatedDate}</p> */}
+      <button onClick={()=> dispatch(deleteRoom(id))}>Delete</button>
     </TableRow>
   );
 }

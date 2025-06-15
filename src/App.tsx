@@ -13,6 +13,7 @@ import { Account } from "./pages/Account"
 import { Login } from "./pages/Login"
 import { PageNotFound } from "./pages/PageNotFound"
 import { AppContainer } from "./ui/AppContainer"
+import { Toaster } from "react-hot-toast"
 
 function App() {
   return (
@@ -34,7 +35,23 @@ function App() {
           <Route path="*" element={<PageNotFound/>}/>
         </Routes>
       </BrowserRouter>
-      </Provider>
+
+      <Toaster 
+        position="bottom-right" 
+        reverseOrder={false}
+        gutter={8} 
+        containerStyle={{margin: "10px"}}
+        toastOptions={{
+          success: {duration:2000},
+          error: {duration:2000 },
+          style:{
+            fontSize:"24px",
+            maxWidth:"600px",
+            padding: "8px 16px",
+          }
+        }}
+      />
+    </Provider>
   )
 }
 
