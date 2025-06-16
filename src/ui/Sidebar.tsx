@@ -15,9 +15,9 @@ const AsibeBar = styled.aside`
 
 export const Sidebar =()=> {
   return ( 
-  <AsibeBar>
-    <Logo/>
-    <MainNav/>
-  </AsibeBar>
+    <AsibeBar>
+      <Logo/>
+      <MainNav/>
+    </AsibeBar>
   )
 }

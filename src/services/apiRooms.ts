@@ -11,7 +11,7 @@ export interface Room {
   price: number,
   discount: number,
   image: string ,
-  discriptoin: string,
+  discription: string,
 }
 
 const headersRequest = {
@@ -50,6 +50,43 @@ export const deleteRoom =createAsyncThunk(
     } catch(e){
       toast.error('Error deleteRoom')
       console.error('Error deleteRoom:', e)
+      throw e
+    }
+  }
+)
+
+/* 
+
+curl -X POST 'https://kgarwrxqyxfeuzofiduv.supabase.co/rest/v1/room' \
+-H "apikey: SUPABASE_KEY" \
+-H "Authorization: Bearer SUPABASE_KEY" \
+-H "Content-Type: application/json" \
+-H "Prefer: return=minimal" \
+-d '{ "some_column": "someValue", "other_column": "otherValue" }'
+*/
+
+export const createRoom = createAsyncThunk(
+  "rooms/createRoom",
+  async(newRoom: Room) => {
+    console.log('добавить комнату',newRoom);
+    try {
+      const imageName = `${Math.random()}-${newRoom.image}`
+
+      const response = await axios.post(
+        `${URLsupabase}`,
+        newRoom,
+        {
+          headers: {
+            ...headersRequest,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        }
+      })
+      toast.success("room added")
+      return response.data[0]
+    } catch (e) {
+      toast.error('Error createRoom')
+      console.error('Error createRoom:', e)
       throw e
     }
   }

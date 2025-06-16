@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { deleteRoom, getRooms } from "../services/apiRooms";
+import { createRoom, deleteRoom, getRooms } from "../services/apiRooms";
 import type { Room }  from '../services/apiRooms'
 //НАДО ИЗМЕНИТЬ НА RTK QUERY - т.к. надо кэшированив
 const initialState:Room[] = []
@@ -13,6 +13,9 @@ const roomsSlice = createSlice({
     builder.addCase(deleteRoom.fulfilled, (state, action) =>       
       state.filter(room => room.id !== action.payload)
     )
+    builder.addCase(createRoom.fulfilled, (state, action) =>{       
+      state.push(action.payload)
+    })
   },
 })
 

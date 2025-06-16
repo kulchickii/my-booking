@@ -63,7 +63,7 @@ export function RoomRow({ room }: RoomRowProps) {
     price,
     discount,
     image, 
-    // discriptoin,
+    // discription,
   } = room;
 
 // const formatedDate = dayjs(createdDate).format('DD.MM.YYYY');
