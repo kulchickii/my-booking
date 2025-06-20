@@ -10,20 +10,20 @@ export interface Room {
   maxPeople: number,
   price: number,
   discount: number,
-  image: string ,
+  image: File | string ,
   discription: string,
 }
 
 const headersRequest = {
-          apikey: publicKey,
-          Authorization: `Bearer ${publicKey}`,
-        }
+  apikey: publicKey,
+  Authorization: `Bearer ${publicKey}`,
+}
 
 export const getRooms = createAsyncThunk<Room[] | void> (
   "rooms/fetchAll", 
   async() => {
     try {
-      const response = await axios.get(`${URLsupabase}?select=*`, {
+      const response = await axios.get(`${URLsupabase}/rest/v1/room?select=*`, {
         headers: headersRequest ,
       })
       console.log('getRooms - запрос отправлен');
@@ -43,7 +43,7 @@ export const deleteRoom =createAsyncThunk(
    async (id:number): Promise<number> => {
     console.log('удаляю-',id);    
     try {
-      await axios.delete(`${URLsupabase}?id=eq.${id}`, {
+      await axios.delete(`${URLsupabase}/rest/v1/room?id=eq.${id}`, {
       headers: headersRequest,
     })
     return id
@@ -55,26 +55,15 @@ export const deleteRoom =createAsyncThunk(
   }
 )
 
-/* 
 
-curl -X POST 'https://kgarwrxqyxfeuzofiduv.supabase.co/rest/v1/room' \
--H "apikey: SUPABASE_KEY" \
--H "Authorization: Bearer SUPABASE_KEY" \
--H "Content-Type: application/json" \
--H "Prefer: return=minimal" \
--d '{ "some_column": "someValue", "other_column": "otherValue" }'
-*/
-
+// создание комнаты без изображения (пока), не понятно как подгрузть фото в облако
 export const createRoom = createAsyncThunk(
   "rooms/createRoom",
   async(newRoom: Room) => {
-    console.log('добавить комнату',newRoom);
     try {
-      const imageName = `${Math.random()}-${newRoom.image}`
-
       const response = await axios.post(
-        `${URLsupabase}`,
-        newRoom,
+        `${URLsupabase}/rest/v1/room`,
+        {...newRoom, image: null}, 
         {
           headers: {
             ...headersRequest,
@@ -82,6 +71,7 @@ export const createRoom = createAsyncThunk(
             "Prefer": "return=representation"
         }
       })
+
       toast.success("room added")
       return response.data[0]
     } catch (e) {

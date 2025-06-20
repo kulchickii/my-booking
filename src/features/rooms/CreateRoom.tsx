@@ -46,21 +46,17 @@ const Error = styled.span`
 `;
 
 export const CreateRoom = () => {
-  const {register, handleSubmit, formState, reset } = useForm<Room>()
+  const {register, handleSubmit, formState, reset} = useForm<Room>()
   const {errors} = formState
 
   const dispatch = useAppDispatch()
 
   const onSubmitForm = (newRoom: Room): void=> {
-    const rrr = {...newRoom, image: newRoom.image[0]}
-    const r1: string = rrr.image.name
-    console.log(r1);
-
-    // console.log(newRoom.image.at(0));
-    
-    // dispatch(createRoom(newRoom)).then(res=>{
-    //   if(res.meta.requestStatus === 'fulfilled') reset()
-    // })
+    dispatch(
+      createRoom({...newRoom, image: newRoom.image })
+    ).then(res=>{
+      if(res.meta.requestStatus === 'fulfilled') reset()
+    })
   }
 
   return (
