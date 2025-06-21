@@ -1,7 +1,8 @@
 import axios from "axios"
 import { URLsupabase, publicKey} from "./apiInfo"
-import { createAsyncThunk } from "@reduxjs/toolkit"
+import { createAsyncThunk, nanoid } from "@reduxjs/toolkit"
 import toast from "react-hot-toast"
+import type { RoomForm } from "../features/rooms/CreateRoom"
 
 export interface Room {
   id: number,
@@ -10,7 +11,7 @@ export interface Room {
   maxPeople: number,
   price: number,
   discount: number,
-  image: File | string ,
+  image: string ,
   discription: string,
 }
 
@@ -19,7 +20,7 @@ const headersRequest = {
   Authorization: `Bearer ${publicKey}`,
 }
 
-export const getRooms = createAsyncThunk<Room[] | void> (
+export const getRooms = createAsyncThunk<RoomForm[] | void> (
   "rooms/fetchAll", 
   async() => {
     try {
@@ -56,14 +57,19 @@ export const deleteRoom =createAsyncThunk(
 )
 
 
-// создание комнаты без изображения (пока), не понятно как подгрузть фото в облако
 export const createRoom = createAsyncThunk(
   "rooms/createRoom",
-  async(newRoom: Room) => {
+  async(newRoom: RoomForm) => {
+    const file = [...newRoom.image][0]
+    const nameFile = `${nanoid(5)}-${file.name}`.replace(/\//g, '')
+    const URLupload = `${URLsupabase}/storage/v1/object/foto-room/public/${nameFile}`
+    console.log(4343);
+    
     try {
-      const response = await axios.post(
+      //создание строки
+      const response = await axios.post( // создам строку в БД
         `${URLsupabase}/rest/v1/room`,
-        {...newRoom, image: null}, 
+        {...newRoom, image: URLupload}, 
         {
           headers: {
             ...headersRequest,
@@ -71,8 +77,20 @@ export const createRoom = createAsyncThunk(
             "Prefer": "return=representation"
         }
       })
+      toast.success("room added") 
 
-      toast.success("room added")
+      if(response.status === 201 ) { // если создание успешна, то я загружу фото
+        await axios.put(URLupload, file,
+          {
+            headers: {
+              ...headersRequest,
+              "Content-Type": file.type,
+              "x-upsert": "true",
+            }
+          })
+          toast.success("image upload")
+      }
+
       return response.data[0]
     } catch (e) {
       toast.error('Error createRoom')
@@ -81,3 +99,4 @@ export const createRoom = createAsyncThunk(
     }
   }
 )
+

@@ -5,8 +5,8 @@ import Input from "../../ui/Input";
 import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
-import Textarea from "../../ui/TextArea";
-import { createRoom, type Room } from "../../services/apiRooms";
+import Textarea from "../../ui/Textarea";
+import { createRoom,  type Room} from "../../services/apiRooms";
 import { useAppDispatch } from "../../hooks/hooks";
 
 const FormRow = styled.div`
@@ -37,6 +37,7 @@ const FormRow = styled.div`
 `;
 
 const Label = styled.label`
+  margin-left:2rem;
   font-weight: 500;
 `;
 
@@ -45,19 +46,33 @@ const Error = styled.span`
   color: var(--color-red-700);
 `;
 
-export const CreateRoom = () => {
-  const {register, handleSubmit, formState, reset} = useForm<Room>()
-  const {errors} = formState
+export interface RoomForm {
+  id: number,
+  created_at: string,
+  name: string,
+  maxPeople: number,
+  price: number,
+  discount: number,
+  image: FileList ,
+  discription: string,
+}
 
+export interface updateRoomRowProps {
+  room: Room;
+}
+
+export const CreateRoom: React.FC<updateRoomRowProps> = () => {
   const dispatch = useAppDispatch()
+  const {register, handleSubmit, formState: {errors}, reset} = useForm<RoomForm>()
 
-  const onSubmitForm = (newRoom: Room): void=> {
-    dispatch(
-      createRoom({...newRoom, image: newRoom.image })
-    ).then(res=>{
-      if(res.meta.requestStatus === 'fulfilled') reset()
-    })
+  const onSubmitForm = (formCreateRoom: RoomForm ): void=> {  
+     dispatch(
+        createRoom(formCreateRoom)
+      ).then(res=>{
+        if(res.meta.requestStatus === 'fulfilled') reset()
+      })  
   }
+
 
   return (
     <Form onSubmit={handleSubmit(onSubmitForm)}>
@@ -140,7 +155,7 @@ export const CreateRoom = () => {
           accept="image/*" 
           type="file"
           {...register('image', {
-            required: "this field is required",
+            required: "this field is required" ,
           })}
         ></FileInput>
       </FormRow>
@@ -150,7 +165,9 @@ export const CreateRoom = () => {
         <Button variation="secondary" type="reset" >Cancel</Button>
         <Button
           // disabled = {надо переменную которая будет следить за загрузкой}
-        >Edit room</Button>
+        >
+          Add room
+        </Button>
       </FormRow>
 
     </Form>

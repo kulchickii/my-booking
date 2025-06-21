@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getRooms, type Room }  from '../../services/apiRooms'
+import { getRooms}  from '../../services/apiRooms'
 import type { RootState } from "../../store/store";
 import { useAppDispatch } from "../../hooks/hooks";
 
@@ -36,10 +36,10 @@ const TableHeader = styled.header`
 `;
 
 export function RoomsTable() {
-  const rooms: Room[] = useSelector((state:RootState) => state.rooms)
+  const rooms = useSelector((state:RootState) => state.rooms)
   const dispatch = useAppDispatch()
 
-  //как-то вынести первую загрузку + появится кнопка "загрузить еще"
+  //как-то вынести первую загрузку + появится кнопка "загрузить еще" или "npm обертка" чтобы не грузить 500 позиций сразу
   useEffect(()=> {
     dispatch(getRooms())
   },[dispatch])

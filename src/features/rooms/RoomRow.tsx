@@ -1,7 +1,10 @@
 import styled from "styled-components";
+// import { useState } from "react";
+
 import type { Room } from "../../services/apiRooms";
 import { deleteRoom } from "../../services/apiRooms";
 import { useAppDispatch } from "../../hooks/hooks";
+// import { CreateRoom } from "./CreateRoom";
 // import dayjs from "dayjs";
 // import { formatCurrency } from "../../utils/helpers";
 // import CreateCabinForm from "./CreateCabinForm";
@@ -49,12 +52,15 @@ const Discount = styled.div`
   color: var(--color-green-700);
 `;
 
-interface RoomRowProps {
+export interface RoomRowProps {
   room: Room;
 }
 
 export function RoomRow({ room }: RoomRowProps) {
   const dispatch = useAppDispatch()
+
+  // const [showUpdateForm, setShowUpdateForm] = useState<boolean>(false) 
+
   const {
     id,
     // created_at: createdDate,
@@ -69,18 +75,25 @@ export function RoomRow({ room }: RoomRowProps) {
 // const formatedDate = dayjs(createdDate).format('DD.MM.YYYY');
 
    return (
-    <TableRow>
-      <Img src={image}/>
-      <Cabin>{name}</Cabin>
-      <div>max people - {maxPeople}</div>
-      <Price>{price} $</Price>
-      {discount !== null ? 
-        <Discount>{discount} $</Discount>
-       : <span>NO</span>
-      }
-      {/* <p>{formatedDate}</p> */}
-      <button onClick={()=> dispatch(deleteRoom(id))}>Delete</button>
-    </TableRow>
+    <>
+      <TableRow>
+        <Img src={image}/>
+        <Cabin>{name}</Cabin>
+        <div>max people - {maxPeople}</div>
+        <Price>{price} $</Price>
+        {discount !== null ? 
+          <Discount>{discount} $</Discount>
+         : <span>NO</span>
+        }
+
+        {/* <p>{formatedDate}</p> */}
+        <div>
+          {/* <button onClick={()=> setShowUpdateForm(prev => !prev)}>Edit</button> */}
+          <button onClick={()=> dispatch(deleteRoom(id))}>Delete</button>
+        </div>
+      </TableRow>
+    
+    </>
   );
 }
 
