@@ -1,102 +1,98 @@
-import axios from "axios"
-import { URLsupabase, publicKey} from "./apiInfo"
-import { createAsyncThunk, nanoid } from "@reduxjs/toolkit"
-import toast from "react-hot-toast"
-import type { RoomForm } from "../features/rooms/CreateRoom"
-
-export interface Room {
-  id: number,
-  created_at: string,
-  name: string,
-  maxPeople: number,
-  price: number,
-  discount: number,
-  image: string ,
-  discription: string,
-}
-
-const headersRequest = {
-  apikey: publicKey,
-  Authorization: `Bearer ${publicKey}`,
-}
-
-export const getRooms = createAsyncThunk<RoomForm[] | void> (
-  "rooms/fetchAll", 
-  async() => {
-    try {
-      const response = await axios.get(`${URLsupabase}/rest/v1/room?select=*`, {
-        headers: headersRequest ,
-      })
-      console.log('getRooms - запрос отправлен');
-      console.log(response.data);
-      toast.success("successful download")
-      return response.data
-    }catch(e) {
-      toast.error('Error getRooms')
-      console.error('Error getRooms:', e)
-      throw e
-    }
-  } 
-)
-
-export const deleteRoom =createAsyncThunk(
-  "rooms/deleteRoom",
-   async (id:number): Promise<number> => {
-    console.log('удаляю-',id);    
-    try {
-      await axios.delete(`${URLsupabase}/rest/v1/room?id=eq.${id}`, {
-      headers: headersRequest,
-    })
-    return id
-    } catch(e){
-      toast.error('Error deleteRoom')
-      console.error('Error deleteRoom:', e)
-      throw e
-    }
-  }
-)
+import { nanoid } from "@reduxjs/toolkit"
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+// import toast from "react-hot-toast"
+import { supabase, supabaseUrl } from "./supabase"
 
 
-export const createRoom = createAsyncThunk(
-  "rooms/createRoom",
-  async(newRoom: RoomForm) => {
-    const file = [...newRoom.image][0]
-    const nameFile = `${nanoid(5)}-${file.name}`.replace(/\//g, '')
-    const URLupload = `${URLsupabase}/storage/v1/object/foto-room/public/${nameFile}`
-    console.log(4343);
-    
-    try {
-      //создание строки
-      const response = await axios.post( // создам строку в БД
-        `${URLsupabase}/rest/v1/room`,
-        {...newRoom, image: URLupload}, 
-        {
-          headers: {
-            ...headersRequest,
-            "Content-Type": "application/json",
-            "Prefer": "return=representation"
+// Добавил rtk query для получния комнат
+export const apiRooms = createApi({
+  reducerPath: 'apiRooms',
+  baseQuery: fetchBaseQuery(),
+  tagTypes: ['Rooms'],
+  endpoints: builder => ({
+
+    getRooms: builder.query({
+      queryFn: async () => {      
+        const { data, error } = await supabase.from('room').select('*')
+        if (error) {
+          return { error: { status: 500, statusText: 'Internal Server Error', data: error.message } }
         }
-      })
-      toast.success("room added") 
+        return { data }
+      },   
+      keepUnusedDataFor: 120, //хранение в сек в кэше после unmounting
+      providesTags: ['Rooms']
+    }),
 
-      if(response.status === 201 ) { // если создание успешна, то я загружу фото
-        await axios.put(URLupload, file,
-          {
-            headers: {
-              ...headersRequest,
-              "Content-Type": file.type,
-              "x-upsert": "true",
-            }
-          })
-          toast.success("image upload")
+    deleteRoom: builder.mutation({
+      queryFn: async (id) => {
+        const { data: roomData, error: getError } = await supabase.from('room').select('image').eq('id', id).single() //удаление картинки из стора
+
+        if (getError || !roomData) {
+          return {
+            error: { status: 404, statusText: 'Not Found', data: getError?.message ||   'Комната не найдена'},
+          }
+        } 
+
+        const fullImageUrl:string = roomData.image
+        const bucketPath = fullImageUrl.split('/object/foto-room/')[1]; // public/MYfile.png
+       
+                const { error: deleteError } = await supabase.from('room').delete().eq('id', id)  //удаление строки из стора
+        if (deleteError) {
+          return { error: { status: 500, statusText: 'Failed to delete room', data: deleteError.message } }
+        }
+      
+        if (bucketPath) {
+          const { error: imageError } = await supabase.storage.from('foto-room').remove([bucketPath]);
+
+          if (imageError) {
+            console.error('Ошибка удаления картинки:', imageError.message);
+          }
       }
 
-      return response.data[0]
-    } catch (e) {
-      toast.error('Error createRoom')
-      console.error('Error createRoom:', e)
-      throw e
-    }
-  }
-)
+        return { data: { success: true } }
+      },
+      invalidatesTags: ['Rooms'] //повторно getRooms после удаления
+    }),
+
+    createRoom: builder.mutation({
+      queryFn: async(newRoom) => {
+
+        const nameFile = `${nanoid(5)}-${newRoom.image.name}`.replace(/\//g, '')
+       
+        const { error: upLoadImgErr } = await supabase.storage
+          .from('foto-room')
+          .upload(`public/${nameFile}`, newRoom.image)  // загрузка фото in supabase
+        
+        if (upLoadImgErr) {
+          return { error: { status: 500, statusText: 'Upload Error ', data: upLoadImgErr.message } }
+        }
+        
+        const URLupload = `${supabaseUrl}/storage/v1/object/foto-room/public/${nameFile}`
+                
+        const { data, error:insertError  } = await supabase
+          .from('room')
+          .insert([{...newRoom, image: URLupload}])
+           // создание rows in supabase      
+
+        if (insertError) {
+          await supabase.storage.from('foto-room').remove([`public/${nameFile}`]); 
+          return { error: { status: 500, statusText: 'DB Insert Error', data: insertError.message } }
+        }
+                
+        
+        console.log({ data });
+        
+      return { data }
+      },      
+
+      invalidatesTags: ['Rooms'] //повторно getRooms после добавления
+    })
+  })
+})
+
+export const {useGetRoomsQuery, useDeleteRoomMutation, useCreateRoomMutation} = apiRooms
+
+//======================================================================
+/* toast.success("image upload")
+ toast.error('Error createRoom') */
 

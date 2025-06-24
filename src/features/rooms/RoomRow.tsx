@@ -2,8 +2,8 @@ import styled from "styled-components";
 // import { useState } from "react";
 
 import type { Room } from "../../services/apiRooms";
-import { deleteRoom } from "../../services/apiRooms";
-import { useAppDispatch } from "../../hooks/hooks";
+import { useDeleteRoomMutation } from "../../services/apiRooms";
+import type { RoomRowProps } from "../../types";
 // import { CreateRoom } from "./CreateRoom";
 // import dayjs from "dayjs";
 // import { formatCurrency } from "../../utils/helpers";
@@ -52,13 +52,9 @@ const Discount = styled.div`
   color: var(--color-green-700);
 `;
 
-export interface RoomRowProps {
-  room: Room;
-}
-
 export function RoomRow({ room }: RoomRowProps) {
-  const dispatch = useAppDispatch()
-
+  const [deleteRoom] = useDeleteRoomMutation()
+  
   // const [showUpdateForm, setShowUpdateForm] = useState<boolean>(false) 
 
   const {
@@ -89,7 +85,7 @@ export function RoomRow({ room }: RoomRowProps) {
         {/* <p>{formatedDate}</p> */}
         <div>
           {/* <button onClick={()=> setShowUpdateForm(prev => !prev)}>Edit</button> */}
-          <button onClick={()=> dispatch(deleteRoom(id))}>Delete</button>
+          <button onClick={()=>deleteRoom(id)}>Delete</button>
         </div>
       </TableRow>
     

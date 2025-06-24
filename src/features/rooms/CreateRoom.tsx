@@ -6,8 +6,8 @@ import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
-import { createRoom,  type Room} from "../../services/apiRooms";
-import { useAppDispatch } from "../../hooks/hooks";
+import { useCreateRoomMutation } from "../../services/apiRooms";
+import type { RoomForm } from "../../types";
 
 const FormRow = styled.div`
   display: grid;
@@ -46,33 +46,16 @@ const Error = styled.span`
   color: var(--color-red-700);
 `;
 
-export interface RoomForm {
-  id: number,
-  created_at: string,
-  name: string,
-  maxPeople: number,
-  price: number,
-  discount: number,
-  image: FileList ,
-  discription: string,
-}
-
-export interface updateRoomRowProps {
-  room: Room;
-}
-
-export const CreateRoom: React.FC<updateRoomRowProps> = () => {
-  const dispatch = useAppDispatch()
+export const CreateRoom = () => {
   const {register, handleSubmit, formState: {errors}, reset} = useForm<RoomForm>()
 
-  const onSubmitForm = (formCreateRoom: RoomForm ): void=> {  
-     dispatch(
-        createRoom(formCreateRoom)
-      ).then(res=>{
-        if(res.meta.requestStatus === 'fulfilled') reset()
-      })  
-  }
+  const [createRoom, {isLoading}] = useCreateRoomMutation()
 
+  const onSubmitForm = (formCreateRoom: RoomForm ): void=> { 
+    const image = formCreateRoom.image[0]
+    createRoom({...formCreateRoom, image})
+    reset()
+  }
 
   return (
     <Form onSubmit={handleSubmit(onSubmitForm)}>
@@ -82,7 +65,7 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
         <Input type="text" id="name" {...register('name',{
           required: "this field is required"
           })}
-          // disabled = {надо переменную которая будет следить за загрузкой}
+          disabled = {isLoading}
         />
         {errors?.name?.message && <Error>{errors.name.message}</Error>}
       </FormRow>
@@ -94,7 +77,7 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
           required: "this field is required",
           min: {value: 1, message: "Minimum people - 1"}
           })}
-          // disabled = {надо переменную которая будет следить за загрузкой}
+          disabled = {isLoading}
           />
         {errors?.maxPeople?.message && <Error>{errors.maxPeople.message}</Error>}
       </FormRow>
@@ -105,12 +88,11 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
         <Input 
           type="number" 
           id="price" 
-          defaultValue={0}
           {...register('price', {
             required: "this field is required",
             min: {value: 20, message: "Minimum price - 20"}
           })}
-          // disabled = {надо переменную которая будет следить за загрузкой}
+          disabled = {isLoading}
         ></Input>
         {errors?.price?.message && <Error>{errors.price.message}</Error>}
       </FormRow>
@@ -125,7 +107,7 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
             required: "this field is required",
             validate:(priceInput) => priceInput <= 80 ? true : "Discount should be less than or equal to 80"
           })}
-          // disabled = {надо переменную которая будет следить за загрузкой}
+          disabled = {isLoading}
         ></Input>
         {errors?.discount?.message && <Error>{errors.discount.message}</Error>}
       </FormRow>
@@ -134,7 +116,6 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
       <FormRow>
         <Label 
           htmlFor="discription" 
-          // disabled = {надо переменную которая будет следить за загрузкой}
         >Description</Label>
         <Textarea 
           id="discription" 
@@ -142,7 +123,7 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
           {...register('discription', {
             required: "this field is required",
           })}
-          // disabled = {надо переменную которая будет следить за загрузкой}
+          disabled = {isLoading}
          />
          {errors?.discription?.message && <Error>{errors.discription.message}</Error>}  
       </FormRow>
@@ -164,7 +145,7 @@ export const CreateRoom: React.FC<updateRoomRowProps> = () => {
       <FormRow>
         <Button variation="secondary" type="reset" >Cancel</Button>
         <Button
-          // disabled = {надо переменную которая будет следить за загрузкой}
+          disabled = {isLoading}
         >
           Add room
         </Button>

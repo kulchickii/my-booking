@@ -1,9 +1,5 @@
 import styled from "styled-components";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { getRooms}  from '../../services/apiRooms'
-import type { RootState } from "../../store/store";
-import { useAppDispatch } from "../../hooks/hooks";
+import {useGetRoomsQuery}  from '../../services/apiRooms'
 
 import { RoomRow } from "./RoomRow";
 // import Spinner from "../../ui/Spinner";
@@ -36,14 +32,17 @@ const TableHeader = styled.header`
 `;
 
 export function RoomsTable() {
-  const rooms = useSelector((state:RootState) => state.rooms)
-  const dispatch = useAppDispatch()
-
-  //как-то вынести первую загрузку + появится кнопка "загрузить еще" или "npm обертка" чтобы не грузить 500 позиций сразу
-  useEffect(()=> {
-    dispatch(getRooms())
-  },[dispatch])
-
+  const {
+    data, 
+    isError,  
+    isLoading, 
+    // refetch
+  } = useGetRoomsQuery(undefined,{
+    refetchOnReconnect: true // обновлённый контент, когда связь восстановится
+  })
+  
+  if (isLoading) return <div>Загрузка...</div>
+  if (isError) return <div>Ошибка</div> 
 
   return <Table>
     <TableHeader >
@@ -54,7 +53,7 @@ export function RoomsTable() {
         <div>Discount</div>
       <div></div>
     </TableHeader>
-    {rooms.map((item)=> <RoomRow key = {item.id} room = {item}/>)}
+    {data?.map((item)=> <RoomRow key = {item.id} room = {item}/>)}
   </Table>
 
 }
