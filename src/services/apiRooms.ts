@@ -36,10 +36,11 @@ export const apiRooms = createApi({
           }
         } 
 
-        const fullImageUrl:string = roomData.image
-        const bucketPath = fullImageUrl.split('/object/foto-room/')[1]; // public/MYfile.png
+        const fullImageUrl = roomData.image
+        const bucketPath = fullImageUrl.split('/object/foto-room/')[1]; // public/MYfile.jpg
        
-                const { error: deleteError } = await supabase.from('room').delete().eq('id', id)  //удаление строки из стора
+        const { error: deleteError } = await supabase.from('room').delete().eq('id', id)  //удаление строки из стора
+        
         if (deleteError) {
           return { error: { status: 500, statusText: 'Failed to delete room', data: deleteError.message } }
         }
@@ -87,45 +88,64 @@ export const apiRooms = createApi({
 
       invalidatesTags: ['Rooms'] //повторно getRooms после добавления
     }),
+
     //баг после редактирования(фото не вставляю) - удалется ссылка на фото
-    updateRoom: builder.mutation({
-      queryFn: async ({updateRoom, id}) => {
-        console.log('>>545>>>',updateRoom, id);
+    updateRoom: builder.mutation({      
+      queryFn: async ({ updateRoom, id }) => {
+          
+        const hasImagePath = updateRoom.image?.startsWith?.(supabaseUrl);
+        console.log('hasImagePath:', hasImagePath); // true / undefined
 
-        const isImagePath = updateRoom.image?.startsWith?.(supabaseUrl)
-        let URLupload = updateRoom.image      
-                
-        if(!URLupload) {
-          const nameFile = `${nanoid(5)}-${updateRoom.image.name}`.replace(/\//g, '')
+        const imagePath = hasImagePath
+          ? updateRoom.image
+          : `${nanoid(5)}-${updateRoom.image.name}`.replace(/\//g, '');
 
-          const { error: uploadError } = await supabase.storage
-            .from('foto-room')
-            .upload(`public/${nameFile}`, updateRoom.image)
-
-          if(uploadError) {
-            return {error: {status: 500, statusText: 'upload error', data: uploadError.message,}}
-          }
-          URLupload = `${supabaseUrl}/storage/v1/object/foto-room/public/${nameFile}`
+        const { data, error: updateError } = await supabase
+          .from('room')
+          .update({
+            ...updateRoom,
+            image: hasImagePath
+              ? updateRoom.image
+              : `${supabaseUrl}/storage/v1/object/foto-room/public/${imagePath}`,
+          })
+          .eq('id', id)
+          .select()
+          .single()
+        
+        if (hasImagePath) {
+          return { data }
         }
-        // обновление строки  
-          const { data, error:updateError  } = await supabase
-            .from('room')
-            .update({...updateRoom, image: URLupload})
-            .eq("id", id)
-            .select()
-            .single()
-
+      
+        const { error: uploadError } = await supabase.storage
+          .from('foto-room')
+          .upload(`public/${imagePath}`, updateRoom.image)
+      
+        if (uploadError) {
+          return {
+            error: {
+              status: 500,
+              statusText: 'Upload Error',
+              data: uploadError.message,
+            },
+          };
+        }
+      
         if (updateError) {
-          if(!isImagePath && URLupload){
-            const nameFile = URLupload.split('/foto-room/')[1]
-            await supabase.storage.from('foto-room').remove([nameFile])
-          }
-          return { error: { status: 500, statusText: 'Update Error', data: updateError.message } }
+          const nameFileDelete = imagePath;
+          await supabase.storage.from('foto-room').remove([`public/${nameFileDelete}`]);
+        
+          return {
+            error: {
+              status: 500,
+              statusText: 'Update Error',
+              data: updateError.message,
+            },
+          };
         }
-
-      return {data}
-
-      }
+      
+        return { data };
+  },      
+      invalidatesTags: ['Rooms'] //повторно getRooms после добавления
     })
 
 

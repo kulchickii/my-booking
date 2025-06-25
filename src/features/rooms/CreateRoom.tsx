@@ -58,16 +58,19 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
   const [updateRoom] = useUpdateRoomMutation()
 
   const onSubmitForm = (formCreateRoom: RoomForm ): void=> { 
-    const image = formCreateRoom.image[0] 
+    const image = typeof formCreateRoom.image === "string" 
+      ? formCreateRoom.image 
+      : formCreateRoom.image[0]
+   
     if(isEditRoom) {
-      console.log('Update');
+      console.log('Update')
       updateRoom({ updateRoom: {...formCreateRoom, image}, id: editId })
+      reset()
     } else {
       console.log('Create');
       createRoom({...formCreateRoom, image})
-    }
-    
-    reset()
+      reset()
+    }    
   }
 
   return (
