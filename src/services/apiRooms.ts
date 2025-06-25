@@ -90,7 +90,7 @@ export const apiRooms = createApi({
     //баг после редактирования(фото не вставляю) - удалется ссылка на фото
     updateRoom: builder.mutation({
       queryFn: async ({updateRoom, id}) => {
-        console.log('>>>>>',updateRoom, id);
+        console.log('>>545>>>',updateRoom, id);
 
         const isImagePath = updateRoom.image?.startsWith?.(supabaseUrl)
         let URLupload = updateRoom.image      
