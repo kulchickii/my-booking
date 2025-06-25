@@ -4,7 +4,10 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { supabase, supabaseUrl } from "./supabase"
 
 
-// Добавил rtk query для получния комнат
+/* 
+  доделать:  редактирование
+*/
+
 export const apiRooms = createApi({
   reducerPath: 'apiRooms',
   baseQuery: fetchBaseQuery(),
@@ -56,7 +59,6 @@ export const apiRooms = createApi({
 
     createRoom: builder.mutation({
       queryFn: async(newRoom) => {
-
         const nameFile = `${nanoid(5)}-${newRoom.image.name}`.replace(/\//g, '')
        
         const { error: upLoadImgErr } = await supabase.storage
@@ -72,25 +74,70 @@ export const apiRooms = createApi({
         const { data, error:insertError  } = await supabase
           .from('room')
           .insert([{...newRoom, image: URLupload}])
-           // создание rows in supabase      
+          .select()
+          .single()
 
         if (insertError) {
           await supabase.storage.from('foto-room').remove([`public/${nameFile}`]); 
           return { error: { status: 500, statusText: 'DB Insert Error', data: insertError.message } }
         }
-                
-        
-        console.log({ data });
         
       return { data }
       },      
 
       invalidatesTags: ['Rooms'] //повторно getRooms после добавления
+    }),
+    //баг после редактирования(фото не вставляю) - удалется ссылка на фото
+    updateRoom: builder.mutation({
+      queryFn: async ({updateRoom, id}) => {
+        console.log('>>>>>',updateRoom, id);
+
+        const isImagePath = updateRoom.image?.startsWith?.(supabaseUrl)
+        let URLupload = updateRoom.image      
+                
+        if(!URLupload) {
+          const nameFile = `${nanoid(5)}-${updateRoom.image.name}`.replace(/\//g, '')
+
+          const { error: uploadError } = await supabase.storage
+            .from('foto-room')
+            .upload(`public/${nameFile}`, updateRoom.image)
+
+          if(uploadError) {
+            return {error: {status: 500, statusText: 'upload error', data: uploadError.message,}}
+          }
+          URLupload = `${supabaseUrl}/storage/v1/object/foto-room/public/${nameFile}`
+        }
+        // обновление строки  
+          const { data, error:updateError  } = await supabase
+            .from('room')
+            .update({...updateRoom, image: URLupload})
+            .eq("id", id)
+            .select()
+            .single()
+
+        if (updateError) {
+          if(!isImagePath && URLupload){
+            const nameFile = URLupload.split('/foto-room/')[1]
+            await supabase.storage.from('foto-room').remove([nameFile])
+          }
+          return { error: { status: 500, statusText: 'Update Error', data: updateError.message } }
+        }
+
+      return {data}
+
+      }
     })
+
+
   })
 })
 
-export const {useGetRoomsQuery, useDeleteRoomMutation, useCreateRoomMutation} = apiRooms
+export const {
+  useGetRoomsQuery, 
+  useDeleteRoomMutation, 
+  useCreateRoomMutation,
+  useUpdateRoomMutation
+} = apiRooms
 
 //======================================================================
 /* toast.success("image upload")

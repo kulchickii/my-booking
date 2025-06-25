@@ -1,13 +1,13 @@
 import styled from "styled-components";
 import { useForm } from "react-hook-form"
-import { useCreateRoomMutation, useUpdateRoomMutation } from "../../services/apiRooms";
-import type { RoomForm, RoomRowProps } from "../../types";
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
+import { useCreateRoomMutation } from "../../services/apiRooms";
+import type { RoomForm, RoomRowProps } from "../../types";
 
  const FormRow = styled.div`
   display: grid;
@@ -46,27 +46,15 @@ const Error = styled.span`
   color: var(--color-red-700);
 `; 
 
-export const CreateRoom = ({room}: RoomRowProps ) => {
-  const {id: editId, ...editValue} = room ?? {} // 
-  const isEditRoom = !!editId
-
-  const {register, handleSubmit, formState: {errors}, reset} = useForm<RoomForm>({
-    defaultValues: isEditRoom ? editValue : {} 
-  })
-
+export const CreateRoom = ({room}: RoomRowProps) => {
+  const {register, handleSubmit, formState: {errors}, reset} = useForm<RoomForm>()
+  console.log(room);
+  
   const [createRoom, {isLoading}] = useCreateRoomMutation()
-  const [updateRoom] = useUpdateRoomMutation()
 
   const onSubmitForm = (formCreateRoom: RoomForm ): void=> { 
-    const image = formCreateRoom.image[0] 
-    if(isEditRoom) {
-      console.log('Update');
-      updateRoom({ updateRoom: {...formCreateRoom, image}, id: editId })
-    } else {
-      console.log('Create');
-      createRoom({...formCreateRoom, image})
-    }
-    
+    const image = formCreateRoom.image[0]
+    createRoom({...formCreateRoom, image})
     reset()
   }
 
@@ -149,7 +137,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
           accept="image/*" 
           type="file"
           {...register('image', {
-            required: isEditRoom ? false : "this field is required"  ,
+            required: "this field is required" ,
           })}
         ></FileInput>
       </FormRow>
@@ -157,7 +145,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
           {/* Кнопки  */}
       <FormRow>
         <Button variation="secondary" type="reset" >Cancel</Button>
-        <Button disabled = {isLoading}>{isEditRoom ?"Edit room"  : "Add room"}</Button>
+        <Button disabled = {isLoading}> Add room </Button>
       </FormRow>
 
     </Form>

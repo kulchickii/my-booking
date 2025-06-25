@@ -14,12 +14,13 @@ export interface RoomRowProps {
 }
 
 export interface RoomForm {
-  id: number,
+  id?: number,
   created_at: string,
   name: string,
   maxPeople: number,
   price: number,
   discount: number,
-  image: FileList ,
+  image: string ,
   discription: string,
 }
+

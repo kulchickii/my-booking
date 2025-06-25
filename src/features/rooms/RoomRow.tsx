@@ -1,9 +1,9 @@
 import styled from "styled-components";
-// import { useState } from "react";
+import { useState } from "react";
 
-import type { Room } from "../../services/apiRooms";
 import { useDeleteRoomMutation } from "../../services/apiRooms";
 import type { RoomRowProps } from "../../types";
+import { CreateRoom } from "./CreateRoom";
 // import { CreateRoom } from "./CreateRoom";
 // import dayjs from "dayjs";
 // import { formatCurrency } from "../../utils/helpers";
@@ -55,7 +55,7 @@ const Discount = styled.div`
 export function RoomRow({ room }: RoomRowProps) {
   const [deleteRoom] = useDeleteRoomMutation()
   
-  // const [showUpdateForm, setShowUpdateForm] = useState<boolean>(false) 
+  const [showUpdateForm, setShowUpdateForm] = useState<boolean>(false) 
 
   const {
     id,
@@ -67,6 +67,7 @@ export function RoomRow({ room }: RoomRowProps) {
     image, 
     // discription,
   } = room;
+
 
 // const formatedDate = dayjs(createdDate).format('DD.MM.YYYY');
 
@@ -84,11 +85,11 @@ export function RoomRow({ room }: RoomRowProps) {
 
         {/* <p>{formatedDate}</p> */}
         <div>
-          {/* <button onClick={()=> setShowUpdateForm(prev => !prev)}>Edit</button> */}
+          <button onClick={()=> setShowUpdateForm(prev => !prev)}>Edit</button>
           <button onClick={()=>deleteRoom(id)}>Delete</button>
         </div>
       </TableRow>
-    
+      {showUpdateForm && <CreateRoom room = {room}/>}
     </>
   );
 }
