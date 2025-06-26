@@ -23,4 +23,3 @@ export interface RoomForm {
   image: string ,
   discription: string,
 }
-

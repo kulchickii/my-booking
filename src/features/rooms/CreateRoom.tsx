@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { useForm } from "react-hook-form"
 import { useCreateRoomMutation, useUpdateRoomMutation } from "../../services/apiRooms";
 import type { RoomForm, RoomRowProps } from "../../types";
@@ -8,46 +7,13 @@ import Form from "../../ui/Form";
 import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
+import { FormRow } from "../../ui/FormRow";
+import { Label } from "../../ui/Label";
+import { Error } from "../../ui/Error";
 
- const FormRow = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
-
-  padding: 1.2rem 0;
-
-  &:first-child {
-    padding-top: 0;
-  }
-
-  &:last-child {
-    padding-bottom: 0;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-grey-100);
-  }
-
-  &:has(button) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.2rem;
-  }
-`;
-
-const Label = styled.label`
-  margin-left:2rem;
-  font-weight: 500;
-`;
-
-const Error = styled.span`
-  font-size: 1.4rem;
-  color: var(--color-red-700);
-`; 
 
 export const CreateRoom = ({room}: RoomRowProps ) => {
-  const {id: editId, ...editValue} = room ?? {} // 
+  const {id: editId, ...editValue} = room ?? {} 
   const isEditRoom = !!editId
 
   const {register, handleSubmit, formState: {errors}, reset} = useForm<RoomForm>({
@@ -63,14 +29,11 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
       : formCreateRoom.image[0]
    
     if(isEditRoom) {
-      console.log('Update')
       updateRoom({ updateRoom: {...formCreateRoom, image}, id: editId })
-      reset()
     } else {
-      console.log('Create');
       createRoom({...formCreateRoom, image})
-      reset()
-    }    
+    }  
+    reset()  
   }
 
   return (
@@ -89,7 +52,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
         {/* Максимум человек */}
       <FormRow>
         <Label htmlFor="maxPeople">Maximum people</Label>
-        <Input type="text" id="maxPeople"{...register('maxPeople',{
+        <Input type="number" id="maxPeople"{...register('maxPeople',{
           required: "this field is required",
           min: {value: 1, message: "Minimum people - 1"}
           })}
@@ -109,7 +72,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
             min: {value: 20, message: "Minimum price - 20"}
           })}
           disabled = {isLoading}
-        ></Input>
+        />
         {errors?.price?.message && <Error>{errors.price.message}</Error>}
       </FormRow>
 
@@ -120,21 +83,19 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
           type="number" 
           id="discount" 
           {...register('discount', {
-            required: "this field is required",
-            validate:(priceInput) => priceInput <= 80 ? true : "Discount should be less than or equal to 80"
+            validate:(priceInput) => priceInput <= 80 ? true : "Discount should be less than or equal to 80",
+            setValueAs: (num) => num === "" ? 0 : +num
           })}
           disabled = {isLoading}
-        ></Input>
+        />
         {errors?.discount?.message && <Error>{errors.discount.message}</Error>}
       </FormRow>
 
           {/* ОПИСАНИЕ НОМЕРА/ДОМИКА */}
       <FormRow>
-        <Label 
-          htmlFor="discription" 
-        >Description</Label>
+        <Label htmlFor="discription">Description</Label>
         <Textarea 
-          id="discription" 
+          id="description" 
           defaultValue=""
           {...register('discription', {
             required: "this field is required",
@@ -146,7 +107,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
 
           {/* ФОТО НОМЕРА/ДОМИКА */}
       <FormRow>
-        <Label htmlFor="image">Foto room</Label>
+        <Label htmlFor="image">Photo room</Label>
         <FileInput 
           id="image" 
           accept="image/*" 
@@ -154,7 +115,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
           {...register('image', {
             required: isEditRoom ? false : "this field is required"  ,
           })}
-        ></FileInput>
+        />
       </FormRow>
 
           {/* Кнопки  */}

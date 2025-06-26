@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useDeleteRoomMutation } from "../../services/apiRooms";
 import type { RoomRowProps } from "../../types";
 import { CreateRoom } from "./CreateRoom";
+import {
+  TrashIcon ,
+  PencilIcon  
+} from '@heroicons/react/24/outline'
+
 // import { CreateRoom } from "./CreateRoom";
 // import dayjs from "dayjs";
 // import { formatCurrency } from "../../utils/helpers";
@@ -52,6 +57,26 @@ const Discount = styled.div`
   color: var(--color-green-700);
 `;
 
+const RowControl = styled.div`
+  display: flex;
+  gap: 10px;
+
+  button {
+    width: 2rem;
+    height: 2rem;
+    background-color: #eee;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ccc;
+    }
+  }
+`;
+
+
+
 export function RoomRow({ room }: RoomRowProps) {
   const [deleteRoom] = useDeleteRoomMutation()
   
@@ -78,16 +103,20 @@ export function RoomRow({ room }: RoomRowProps) {
         <Cabin>{name}</Cabin>
         <div>max people - {maxPeople}</div>
         <Price>{price} $</Price>
-        {discount !== null ? 
+        {discount !== 0 ? 
           <Discount>{discount} $</Discount>
-         : <span>NO</span>
+         : <span>--</span>
         }
 
         {/* <p>{formatedDate}</p> */}
-        <div>
-          <button onClick={()=> setShowUpdateForm(prev => !prev)}>Edit</button>
-          <button onClick={()=>deleteRoom(id)}>Delete</button>
-        </div>
+        <RowControl>
+          <button onClick={()=> setShowUpdateForm(prev => !prev)}>
+            <PencilIcon/>
+          </button>
+          <button onClick={()=>deleteRoom(id)}>
+             <TrashIcon/>
+          </button>
+        </RowControl>
       </TableRow>
       {showUpdateForm && <CreateRoom room = {room}/>}
     </>

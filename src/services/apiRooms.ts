@@ -3,10 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 // import toast from "react-hot-toast"
 import { supabase, supabaseUrl } from "./supabase"
 
-
-/* 
-  доделать:  редактирование
-*/
+//Добавить "тосты" при успешной/неуспешной загрузке
 
 export const apiRooms = createApi({
   reducerPath: 'apiRooms',
@@ -60,6 +57,8 @@ export const apiRooms = createApi({
 
     createRoom: builder.mutation({
       queryFn: async(newRoom) => {
+        console.log(newRoom);
+        
         const nameFile = `${nanoid(5)}-${newRoom.image.name}`.replace(/\//g, '')
        
         const { error: upLoadImgErr } = await supabase.storage
@@ -74,7 +73,7 @@ export const apiRooms = createApi({
                 
         const { data, error:insertError  } = await supabase
           .from('room')
-          .insert([{...newRoom, image: URLupload}])
+          .insert([{...newRoom, image: URLupload }])
           .select()
           .single()
 
