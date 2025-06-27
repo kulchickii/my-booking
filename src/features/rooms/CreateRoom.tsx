@@ -13,9 +13,9 @@ import { Error } from "../../ui/Error";
 
 export interface RoomRowProps {
   room: Room,
-  onCloseForm?: ()=>boolean
+  onCloseModal?: () => void
 }
-export const CreateRoom = ({room, onCloseForm}: RoomRowProps ) => {
+export const CreateRoom: React.FC<RoomRowProps> = ({room, onCloseModal}) => {
   const [createRoom, {isLoading}] = useCreateRoomMutation()
   const [updateRoom] = useUpdateRoomMutation()
 
@@ -40,7 +40,7 @@ export const CreateRoom = ({room, onCloseForm}: RoomRowProps ) => {
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmitForm)} type={onCloseForm?.() ? 'modal' : 'regular'}>
+    <Form onSubmit={handleSubmit(onSubmitForm)} type={onCloseModal ? 'modal' : 'regular'}>
       {/* ИМЯ НОМЕРА/ДОМИКА */}
       <FormRow >
         <Label htmlFor="name">Cabin name</Label>
@@ -123,7 +123,11 @@ export const CreateRoom = ({room, onCloseForm}: RoomRowProps ) => {
 
           {/* Кнопки  */}
       <FormRow>
-        <Button variation="secondary" type="reset" onClick={onCloseForm}>Cancel</Button>
+        <Button variation="secondary" type="reset" onClick={()=>{
+          console.log(isEditRoom, onCloseModal);
+          return onCloseModal?.()
+          }}>Cancel</Button>
+
         <Button disabled = {isLoading}>{isEditRoom ?"Edit room"  : "Add room"}</Button>
       </FormRow>
 

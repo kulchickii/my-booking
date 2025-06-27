@@ -18,11 +18,4 @@ export const AddRoom = () => {
   )
 }
 
-
-    // <div>
-    //    <Button onClick={()=>setIsOpenForm(prev => !prev)}>Add room</Button>
-    //     {isOpenForm && <Modal onClose = {() => setIsOpenForm(false)}>
-    //       <CreateRoom onCloseForm = {() => setIsOpenForm(false)}/>{/* починить - пропс передается в другом месте, тут ненадо ему передаваться */}
-    //     </Modal>
-    // </div>
-  
+ 

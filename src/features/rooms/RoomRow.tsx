@@ -65,7 +65,7 @@ export const RoomRow = ({ room }: RoomRowProps) =>  {
                   <Menus.Button icon = {<TrashIcon/>}>Delete</Menus.Button>
                 </Modal.Open>
               </Menus.List>
-
+ 
                 <Modal.Window name = 'edit'>
                   <CreateRoom room = {room}/>
                 </Modal.Window>
