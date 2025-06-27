@@ -9,9 +9,7 @@ export interface Room {
   discription: string,
 }
 
-export interface RoomRowProps {
-  room: Room
-}
+
 
 export interface RoomForm {
   id?: number,

@@ -13,7 +13,7 @@ export const apiRooms = createApi({
 
     getRooms: builder.query({
       queryFn: async () => {      
-        const { data, error } = await supabase.from('room').select('*')
+        const { data, error } = await supabase.from('room').select('*').order('id')
         if (error) {
           return { error: { status: 500, statusText: 'Internal Server Error', data: error.message } }
         }
@@ -88,12 +88,9 @@ export const apiRooms = createApi({
       invalidatesTags: ['Rooms'] //повторно getRooms после добавления
     }),
 
-    //баг после редактирования(фото не вставляю) - удалется ссылка на фото
     updateRoom: builder.mutation({      
       queryFn: async ({ updateRoom, id }) => {
-          
         const hasImagePath = updateRoom.image?.startsWith?.(supabaseUrl);
-        console.log('hasImagePath:', hasImagePath); // true / undefined
 
         const imagePath = hasImagePath
           ? updateRoom.image

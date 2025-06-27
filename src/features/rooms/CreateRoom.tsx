@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import { useCreateRoomMutation, useUpdateRoomMutation } from "../../services/apiRooms";
-import type { RoomForm, RoomRowProps } from "../../types";
+import type { Room, RoomForm } from "../../types";
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
@@ -11,8 +11,14 @@ import { FormRow } from "../../ui/FormRow";
 import { Label } from "../../ui/Label";
 import { Error } from "../../ui/Error";
 
+export interface RoomRowProps {
+  room: Room,
+  onCloseForm?: ()=>boolean
+}
+export const CreateRoom = ({room, onCloseForm}: RoomRowProps ) => {
+  const [createRoom, {isLoading}] = useCreateRoomMutation()
+  const [updateRoom] = useUpdateRoomMutation()
 
-export const CreateRoom = ({room}: RoomRowProps ) => {
   const {id: editId, ...editValue} = room ?? {} 
   const isEditRoom = !!editId
 
@@ -20,10 +26,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
     defaultValues: isEditRoom ? editValue : {} 
   })
 
-  const [createRoom, {isLoading}] = useCreateRoomMutation()
-  const [updateRoom] = useUpdateRoomMutation()
-
-  const onSubmitForm = (formCreateRoom: RoomForm ): void=> { 
+  const onSubmitForm = (formCreateRoom: RoomForm )=> { 
     const image = typeof formCreateRoom.image === "string" 
       ? formCreateRoom.image 
       : formCreateRoom.image[0]
@@ -37,7 +40,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmitForm)}>
+    <Form onSubmit={handleSubmit(onSubmitForm)} type={onCloseForm?.() ? 'modal' : 'regular'}>
       {/* ИМЯ НОМЕРА/ДОМИКА */}
       <FormRow >
         <Label htmlFor="name">Cabin name</Label>
@@ -120,7 +123,7 @@ export const CreateRoom = ({room}: RoomRowProps ) => {
 
           {/* Кнопки  */}
       <FormRow>
-        <Button variation="secondary" type="reset" >Cancel</Button>
+        <Button variation="secondary" type="reset" onClick={onCloseForm}>Cancel</Button>
         <Button disabled = {isLoading}>{isEditRoom ?"Edit room"  : "Add room"}</Button>
       </FormRow>
 
