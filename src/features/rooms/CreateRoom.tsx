@@ -123,11 +123,7 @@ export const CreateRoom: React.FC<RoomRowProps> = ({room, onCloseModal}) => {
 
           {/* Кнопки  */}
       <FormRow>
-        <Button variation="secondary" type="reset" onClick={()=>{
-          console.log(isEditRoom, onCloseModal);
-          return onCloseModal?.()
-          }}>Cancel</Button>
-
+        <Button variation="secondary" type="reset" onClick={()=> onCloseModal?.()}>Cancel</Button>
         <Button disabled = {isLoading}>{isEditRoom ?"Edit room"  : "Add room"}</Button>
       </FormRow>
 

@@ -2,6 +2,7 @@ import { RoomsTable } from "../features/rooms/RoomsTable"
 import Heading from "../ui/Heading"
 import Row from "../ui/Row"
 import { AddRoom } from "../features/rooms/AddRoom"
+import { RoomTableOpretions } from "../features/rooms/RoomTableOpretions"
 
 
 export const Cabins = () => {
@@ -9,7 +10,7 @@ export const Cabins = () => {
   <>
     <Row type="horizontal">
       <Heading as="h1"> All rooms </Heading>
-      <p> Filtered / Sorting</p>
+      <RoomTableOpretions/>
     </Row>
 
     <Row type="vertical">
