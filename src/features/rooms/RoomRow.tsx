@@ -37,8 +37,6 @@ export const RoomRow = ({ room }: RoomRowProps) =>  {
   const [deleteRoom, {isLoading: isDeleting}] = useDeleteRoomMutation()
   const {id, name, maxPeople, price, discount, image } = room
 
-// const formatedDate = dayjs(createdDate).format('DD.MM.YYYY');
-
    return (
       <Table.Row>
         <Img src={image}/>
@@ -50,7 +48,6 @@ export const RoomRow = ({ room }: RoomRowProps) =>  {
          : <span>—</span>
         }
      
-        {/* <p>{formatedDate}</p> */}
         <div>
           <Modal>
             <Menus.Menu>
