@@ -1,6 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
 import styled from "styled-components";
-import type { Room } from "../types";
 
 interface CommonRowProps {
   columns: string;
@@ -14,9 +13,10 @@ interface TableProps extends Props {
   columns: string;
 }
 
-interface BodyProps {
-  data: Room []
-  render: (item: Room) => ReactNode
+interface BodyProps <T> {
+  data: T[]
+  // eslint-disable-next-line no-unused-vars
+  render: (item: T) => ReactNode
 }
 
 const StyledTable = styled.div`
@@ -65,12 +65,24 @@ const Empty = styled.p`
   margin: 2.4rem;
 `;
 
+const Footer = styled.footer`
+  background-color: var(--color-grey-50);
+  display: flex;
+  justify-content: center;
+  padding: 1.2rem;
+
+  &:not(:has(*)) {
+    display: none;
+  }
+`;
+
 const TableContext = createContext({columns: ''});
 
 export const Table: React.FC<TableProps> & {
   Header: typeof Header;
   Row: typeof Row;
   Body: typeof Body;
+  Footer: typeof Footer;
 } = ({ columns, children }) => {
   return (
     <TableContext.Provider value={{ columns }}>
@@ -97,7 +109,7 @@ const Row: React.FC<Props> = ({ children })=> {
   );
 }
 
-const Body: React.FC<BodyProps> = ({ data, render }) => {
+const Body= <T,>({ data, render }: BodyProps<T>) => {
   if (data.length === 0) return <Empty>Нет данных для отображения.</Empty>
   return <StyledBody>{data.map(render)}</StyledBody>
 }
@@ -105,5 +117,5 @@ const Body: React.FC<BodyProps> = ({ data, render }) => {
 Table.Header = Header
 Table.Row = Row
 Table.Body = Body
-
+Table.Footer = Footer
 
