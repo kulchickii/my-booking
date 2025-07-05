@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { useGetBookingsQuery } from "../../services/apiBooking";
 import { Menus } from "../../ui/Menus";
 
@@ -6,13 +7,29 @@ import { Table } from "../../ui/Table";
 import {BookingRow} from "./BookingRow";
 
 export const BookingTable = () => {
-  const {data , isLoading } = useGetBookingsQuery();
+  const [searchParams] = useSearchParams()
   
-  const bookings = data?.bookings ?? [];
-  const count = data?.count ?? 0;
+  //фильтр для АПИ
+  const filterValue = searchParams.get("status")
+  const filter = !filterValue || filterValue === "all"? undefined: { field: "status", value: filterValue }
+  
+  //сотриторовка для АПИ
+  const sortByRaw = searchParams.get("sortBy") || "startDate-desc"
+  const [field, dir] = sortByRaw.split("-")
+  
+  type SortDirection = 'asc' | 'desc'
+  const direction: SortDirection = dir === "asc" ? "asc" : "desc"
+  const sortBy = { field, direction } 
+  
+  const page = !searchParams.get("page") ? 1 : Number(searchParams.get("page"))
+
+  const {data , isLoading } = useGetBookingsQuery({filter, sortBy, page})
+
+  const bookings = data?.bookings ?? []
+  const count = data?.count ?? 0
   
   if (isLoading) return <div>Загрузка...</div>
-  if (!bookings.length) return <>NO bookings</>;
+  if (!bookings.length) return <>NO bookings</>
 
   return ( 
     <Menus>

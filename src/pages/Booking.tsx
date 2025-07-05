@@ -1,13 +1,5 @@
-import { BookingTable } from "../features/bookings/BookingTable"
+import { BookingDetail } from "../features/bookings/BookingDetail";
 
-export const Booking = () => {
-  return (
-    <>
-      <div>Booking</div>
-      <BookingTable/>
-    </>
-  )
-    
-  
-  
+export const  Booking=()=> {
+  return <BookingDetail />
 }

@@ -1,6 +1,6 @@
-import Button from "../../ui/Button"
 import { CreateRoom } from "./CreateRoom"
 import { Modal } from "../../ui/Modal"
+import { Button } from "../../ui/Button"
 
 export const AddRoom = () => {
   return (

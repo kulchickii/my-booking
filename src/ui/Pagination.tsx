@@ -1,7 +1,7 @@
 import { useSearchParams } from "react-router-dom"
 import styled from "styled-components"
 
-const PAGE_SIZE = 10
+export const PAGE_SIZE = 3
 
 interface PaginationButtonProps {
   active?: boolean;
@@ -76,20 +76,19 @@ export const Pagination: React.FC<PaginationProps> = ({ count }) => {
 
   const pageCount = Math.ceil(count / PAGE_SIZE);
 
-  function nextPage() {
+  const  nextPage = () => {
     const next = currentPage === pageCount ? currentPage : currentPage + 1;
     searchParams.set("page", `${next}`);
     setSearchParams(searchParams);
   }
 
-  function prevPage() {
+  const prevPage = () => {
     const prev = currentPage === 1 ? currentPage : currentPage - 1;
-
     searchParams.set("page", `${prev}`);
     setSearchParams(searchParams);
   }
 
-  if (pageCount <= 1) return null;
+  if (pageCount <= 1) return null
 
   return (
     <StyledPagination>
@@ -103,15 +102,14 @@ export const Pagination: React.FC<PaginationProps> = ({ count }) => {
 
       <Buttons>
         <PaginationButton onClick={prevPage} disabled={currentPage === 1}>
-          ➡️ <span>Previous</span>
+          ⬅️ <span>Previous</span>
         </PaginationButton>
 
         <PaginationButton
           onClick={nextPage}
           disabled={currentPage === pageCount}
         >
-          <span>Next</span>
-          ➡️
+          <span>Next</span>➡️
         </PaginationButton>
       </Buttons>
     </StyledPagination>

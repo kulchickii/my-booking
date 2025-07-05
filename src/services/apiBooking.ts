@@ -1,13 +1,21 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { supabase } from "./supabase";
+import { PAGE_SIZE } from "../ui/Pagination";
+import toast from "react-hot-toast";
 
 export interface Room {
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image: any; 
+  price: number;
+  
 }
 
 export interface Guest {
   fullName: string;
   email: string;
+  nationality: string;
+  passport: string;
 }
 
 export interface Booking {
@@ -19,6 +27,11 @@ export interface Booking {
   numGuest: number;
   totalPrice: number;
   status: "unconfirmed" | "checked-in" | "checked-out";
+  hasBreakfast: boolean;
+  isPaid: boolean;
+  roomPrice: number;
+  extrasPrice: number;
+  observation: string;
   room: Room 
   guest: Guest
 }
@@ -28,14 +41,34 @@ interface GetBookingsResponse {
   count: number;
 }
 
+export interface BookingFilter {
+  field: string
+  value: string
+  method?: 'eq'
+}
+
+export interface BookingSort {
+  field: string;
+  direction: 'asc' | 'desc';
+}
+
+export interface BookingQueryParams {
+  filter?: BookingFilter;
+  sortBy?: BookingSort;
+  page?: number;    
+}
+
+
 export const apiBooking = createApi({
   reducerPath: 'apiBooking',
   baseQuery: fetchBaseQuery(),
   tagTypes: ['Booking'],
   endpoints: (builder) => ({
-    getBookings: builder.query<GetBookingsResponse, void>({
-      queryFn: async () => {
-        const { data, error , count} = await supabase
+    getBookings: builder.query<GetBookingsResponse, BookingQueryParams | void>({
+      queryFn: async (params: BookingQueryParams = {}) => {
+        const { filter, sortBy, page} = params
+
+        let query = supabase
           .from('bookings')
           .select(` 
             id,
@@ -49,12 +82,28 @@ export const apiBooking = createApi({
             room(name),
             guest(fullName, email)`,
             { count: "exact" })
+
+        if (filter){
+          query = (query as any)[filter.method || 'eq'](filter.field, filter.value)
+        } 
+        if (sortBy){
+          query = query.order(sortBy.field, { ascending: sortBy.direction === "asc",})
+        }  
+        
+        if (page) {
+          const from = (page - 1) * PAGE_SIZE;
+          const to = from + PAGE_SIZE - 1;
+          query = query.range(from, to);
+        }
+
+        const { data, error , count} = await query
+        
         if (error) {
           return {error: {status: 404, statusText: 'Booking not found', data: error.message}}        
         }
-        
         return { data: { bookings: data ?? [], count: count ?? 0 } }
       },
+
       providesTags: ['Booking']
     }),
 
@@ -76,6 +125,7 @@ export const apiBooking = createApi({
 
     updateBooking: builder.mutation({      
       queryFn: async ({id, update}) => {
+      console.log(id, update);
       
       const { data, error } = await supabase
         .from("bookings")
@@ -87,13 +137,37 @@ export const apiBooking = createApi({
         if (error) {
           return {error: {status: 400, statusText: 'Booking could not be updated', data: error.message}}        
         }
-
+      toast.success(`Booking update`);
       return {data}
   },      
       invalidatesTags: ['Booking'] 
+    }),
+
+    getBooking: builder.query({
+      queryFn: async (id) => {
+        console.log(">>>>>>>>>>>>>>..",id);
+        
+        const { data, error } = await supabase
+          .from("bookings")
+          .select("*, room(*), guest(*)")
+          .eq("id", id)
+          .single();
+
+        if (error) {
+          return { error: { status: 404, statusText: "Booking not found", data: error.message } };
+        }
+      
+        return { data };
+  },
     })
+
   }),
 });
 
-export const {useGetBookingsQuery, useDeleteBookingMutation, useUpdateBookingMutation}=apiBooking
+export const {
+  useGetBookingsQuery, 
+  useDeleteBookingMutation, 
+  useUpdateBookingMutation,
+  useGetBookingQuery
+}=apiBooking
 

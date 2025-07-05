@@ -5,7 +5,7 @@ import { store } from "./store/store"
 import { Provider } from 'react-redux'
 
 import { Dashboard } from "./pages/Dashboard"
-import { Booking } from "./pages/Booking"
+import { Bookings } from "./pages/Bookings"
 import { Cabins } from "./pages/Rooms"
 import { Users } from "./pages/Users"
 import { Settings } from "./pages/Settings"
@@ -14,6 +14,8 @@ import { Login } from "./pages/Login"
 import { PageNotFound } from "./pages/PageNotFound"
 import { AppContainer } from "./ui/AppContainer"
 import { Toaster } from "react-hot-toast"
+import { Booking } from "./pages/Booking"
+import { Checkin } from "./pages/Checkin"
 
 function App() {
   return (
@@ -24,7 +26,10 @@ function App() {
           <Route element = {<AppContainer/>}>
             <Route index element={<Navigate replace to='dashboard'/>}/>
             <Route path="dashboard" element={<Dashboard/>}/>
-            <Route path="bookings" element={<Booking/>}/>
+            <Route path="bookings" element={<Bookings/>}/>
+            <Route path="bookings/:bookingId" element={<Booking/>}/>
+            <Route path="checkin/:bookingId" element={<Checkin />} />
+
             <Route path="cabins" element={<Cabins/>}/>
             <Route path="users" element={<Users/>}/>
             <Route path="settings" element={<Settings/>}/>

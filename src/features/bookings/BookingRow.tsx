@@ -68,8 +68,7 @@ const {
     room: { name: cabinName },
   } = booking
   
-  const navigate = useNavigate();
-
+  const navigate = useNavigate()
   const [updateBooking, { isLoading: isCheckingOut }] = useUpdateBookingMutation();
   const [deleteBooking, {isLoading: isDeleting}] = useDeleteBookingMutation()
 
@@ -113,7 +112,7 @@ const {
           <Menus.List id={`${bookingId}`}>
             <Menus.Button
               icon="👁️"
-              // onClick={() => navigate(`/bookings/${bookingId}`)}
+              onClick={() => navigate(`/bookings/${bookingId}`)}
             >
               See details
             </Menus.Button>
@@ -121,7 +120,7 @@ const {
             {status === "unconfirmed" && (
               <Menus.Button
                 icon="⬇️"
-                // onClick={() => navigate(`/checkin/${bookingId}`)}
+                onClick={() => navigate(`/checkin/${bookingId}`)}
               >
                 Check in
               </Menus.Button>
