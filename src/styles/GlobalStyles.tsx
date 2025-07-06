@@ -109,17 +109,19 @@ export const StylesGlobal = createGlobalStyle`
   }
 
    html {
-    font-size: 16px;
+    font-size: 8px;
   }
 
   body {
+    margin: 0 auto;
     font-family: "Nunito", sans-serif;
     color: var(--color-grey-700);
- 
     transition: color 0.3s, background-color 0.3s;
     min-height: 100vh;
     line-height: 1.5;
     font-size: 1.6rem;
+    max-width: 1200px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
 
   input,

@@ -16,6 +16,7 @@ import { AppContainer } from "./ui/AppContainer"
 import { Toaster } from "react-hot-toast"
 import { Booking } from "./pages/Booking"
 import { Checkin } from "./pages/Checkin"
+import ProtectedRoute from "./ui/ProtectedRoute"
 
 function App() {
   return (
@@ -23,7 +24,12 @@ function App() {
       <StylesGlobal/>
       <BrowserRouter>
         <Routes>   
-          <Route element = {<AppContainer/>}>
+          <Route element = {
+            <ProtectedRoute>
+              <AppContainer/>
+            </ProtectedRoute>
+          }
+            >
             <Route index element={<Navigate replace to='dashboard'/>}/>
             <Route path="dashboard" element={<Dashboard/>}/>
             <Route path="bookings" element={<Bookings/>}/>

@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 
 export interface Room {
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image: any; 
   price: number;
   
@@ -125,7 +124,6 @@ export const apiBooking = createApi({
 
     updateBooking: builder.mutation({      
       queryFn: async ({id, update}) => {
-      console.log(id, update);
       
       const { data, error } = await supabase
         .from("bookings")
@@ -137,7 +135,7 @@ export const apiBooking = createApi({
         if (error) {
           return {error: {status: 400, statusText: 'Booking could not be updated', data: error.message}}        
         }
-      toast.success(`Booking update`);
+      toast.success(`Booking updated`);
       return {data}
   },      
       invalidatesTags: ['Booking'] 
@@ -145,8 +143,6 @@ export const apiBooking = createApi({
 
     getBooking: builder.query({
       queryFn: async (id) => {
-        console.log(">>>>>>>>>>>>>>..",id);
-        
         const { data, error } = await supabase
           .from("bookings")
           .select("*, room(*), guest(*)")
@@ -158,10 +154,10 @@ export const apiBooking = createApi({
         }
       
         return { data };
-  },
-    })
-
+      },
+    }),
   }),
+  
 });
 
 export const {
